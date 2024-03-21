@@ -6,9 +6,7 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.width', 500)
 
 
-class SportoDuomenuRinkiklis:
-    def __init__(self):
-        pass
+class KrepsinioKlubuRinkiklis:
 
     def eurolygos_duomenu_rinkimas_bendras(self):
         url = 'https://www.basketnews.lt/lygos/25-eurolyga/lenteles.html'
@@ -32,6 +30,10 @@ class SportoDuomenuRinkiklis:
         else:
             print('Something went wrong cannot get a website data..')
 
+    def info(self):
+        return self.eurolygos_duomenu_rinkimas_bendras()
+
+class KrepsinioZaidejuRinkiklis:
 
     def eurolygos_zaideju_statistika(self):
         url = ('https://www.basketnews.lt/lygos/25-eurolyga/statistika.html?fgroup=players&fseason=2023&fmonth=0&stage'
@@ -53,6 +55,11 @@ class SportoDuomenuRinkiklis:
             return eurolygos_zaidejai_df
         else:
             print('Something went wrong cannot get a website data..')
+
+    def info(self):
+        return self.eurolygos_zaideju_statistika()
+
+class FutboloKlubuRinkiklis:
 
     def futbolo_info(self):
         url = 'https://alyga.lt/turnyrine-lentele/1'
@@ -77,7 +84,10 @@ class SportoDuomenuRinkiklis:
         else:
             print('Something went wrong cannot get a website data..')
 
+    def info(self):
+        return self.futbolo_info()
 
+class FutboloZaidejuRinkiklis:
     def futbolo_zaideju_info(self):
         url = 'https://alyga.lt/turnyrine-lentele/1'
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -114,11 +124,60 @@ class SportoDuomenuRinkiklis:
         else:
             print('Something went wrong cannot get a website data..')
 
+    def info(self):
+        return self.futbolo_zaideju_info()
 
 
 
-rinkiklis = SportoDuomenuRinkiklis()
-# rinkiklis.eurolygos_duomenu_rinkimas_bendras()
-# rinkiklis.eurolygos_zaideju_statistika()
-# rinkiklis.futbolo_info()
-rinkiklis.futbolo_zaideju_info()
+class InformacijaApieSporta:
+    def __init__(self, duomenys):
+        self.duomenys = duomenys
+
+    def gauti_info_apie_komandas(self, komandos_pavadinimas):
+        komandos_info = self.duomenys[self.duomenys['Komanda'] == komandos_pavadinimas]
+        if not komandos_info.empty:
+            return komandos_info
+        else:
+            print(f'Komanda {komandos_pavadinimas} nerasta')
+
+    def gauti_info_apie_zaideja(self, zaidejas):
+        zaidejo_info = self.duomenys[self.duomenys['Zaidejas'] == zaidejas]
+        if not zaidejo_info.empty:
+            return zaidejo_info
+        else:print(f'Zaidejas {zaidejas} nerasta')
+
+
+
+# futbolo_rinkiklis = FutboloKlubuRinkiklis()
+# a_lygos_bendras_df = futbolo_rinkiklis.futbolo_info()
+# informacija_apie_sporta = InformacijaApieSporta(a_lygos_bendras_df)
+# komandos_info = informacija_apie_sporta.gauti_info_apie_komandas('Marijampolės „Sūduva“')
+# if komandos_info is not None:
+#     print("Informacija apie komanda")
+#     print(komandos_info)
+#
+# krepsinio_rinkiklis = KrepsinioKlubuRinkiklis()
+# krepsinio_data = krepsinio_rinkiklis.eurolygos_duomenu_rinkimas_bendras()
+# informacija_apie_sporta = InformacijaApieSporta(krepsinio_data)
+# komandos_info = informacija_apie_sporta.gauti_info_apie_komandas('Madrido Real')
+# if komandos_info is not None:
+#     print("Informacija apie komanda")
+#     print(komandos_info)
+#
+# krepsinio_zaideju_rinkiklis = KrepsinioZaidejuRinkiklis()
+# zaidejo_data = krepsinio_zaideju_rinkiklis.eurolygos_zaideju_statistika()
+# informacija_apie_zaideja = InformacijaApieSporta(zaidejo_data)
+# zaidejo_info = informacija_apie_zaideja.gauti_info_apie_zaideja('Achille  Polonara')
+# if zaidejo_info is not None:
+#     print("Informacija apie zaideja:")
+#     print(zaidejo_info)
+#
+# futbolo_zaideju_rinkiklis = FutboloZaidejuRinkiklis()
+# zaidejo_data = futbolo_zaideju_rinkiklis.futbolo_zaideju_info()
+# informacija_apie_zaideja = InformacijaApieSporta(zaidejo_data)
+# zaidejo_info = informacija_apie_zaideja.gauti_info_apie_zaideja('Paulius Golubickas')
+# if zaidejo_info is not None:
+#     print("Informacija apie zaideja:")
+#     print(zaidejo_info)
+
+

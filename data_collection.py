@@ -43,7 +43,7 @@ class KrepsinioKlubuRinkiklis:
                     print("Lenteles nera.")
                     return None
             except AttributeError as e:
-                print(f"Lenteles rasti nepavyko {e}")
+                print(f"Soupas nieko negrazino {e}")
                 return None
         else:
             print("Nepavyko gauti duomenų iš puslapio.")

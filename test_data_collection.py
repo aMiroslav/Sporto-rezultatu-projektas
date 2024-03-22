@@ -12,6 +12,7 @@ def fiktyvi_eurolygos_data():
     ]
 
 mock_html = """
+<!DOCTYPE html>
 <html>
 <body>
 <table class="stats_01">
@@ -30,6 +31,7 @@ def test_krepsinio_klubu_rinkiklis(fiktyvi_eurolygos_data):
         m.get(test_url, text=mock_html)
         krepsinio_klubu_rinkiklis = KrepsinioKlubuRinkiklis()
         result = krepsinio_klubu_rinkiklis.eurolygos_duomenu_rinkimas_bendras()
+        print(result)
         assert result == expected_response
 
 # 2
@@ -41,6 +43,7 @@ def fiktyvi_alyga_data():
     ]
 
 mock_html = """
+<!DOCTYPE html>
 <html>
 <body>
 <table class="table01">
@@ -83,7 +86,7 @@ def test_gauti_puslapi():
             turinys = soup.find('h1').text.strip()
             assert turinys == laukiamas_puslapio_turinys
         else:
-            assert False, "Failed to retrieve page content."
+            assert False, "Nepavyko gauti duomenu"
 
 
 # 4

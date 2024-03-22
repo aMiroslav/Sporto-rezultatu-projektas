@@ -5,32 +5,49 @@ pd.set_option('display.max_columns', 10)
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.width', 500)
 
+
 class GautiPuslapi:
-    @staticmethod
-    def gauti_is_url(url):
-        response = requests.get(url)
+    def __init__(self, url):
+        self.url = url
+
+    def gauti_is_url(self):
+        response = requests.get(self.url)
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             return soup
         else:
-            print(f"Nepavyko gauti duomenu is {url}. Gautas 'status code': {response.status_code}")
+            print(f"Nepavyko gauti duomenu is {self.url}. Gautas 'status code': {response.status_code}")
+            return None
+
+
 class KrepsinioKlubuRinkiklis:
+    def __init__(self):
+        self.url = 'https://www.basketnews.lt/lygos/25-eurolyga/lenteles.html'
+        self.gauti_puslapi = GautiPuslapi(self.url)
 
     def eurolygos_duomenu_rinkimas_bendras(self):
-        url = 'https://www.basketnews.lt/lygos/25-eurolyga/lenteles.html'
-        puslapio_duomenys = GautiPuslapi.gauti_is_url(url)
-        krepsinio_data = []
-        try:
-            table = puslapio_duomenys.find('table', class_='stats_01')
-            for row in table.find_all('tr'):
-                row_data = []
-                for cell in row.find_all('td'):
-                    row_data.append(cell.text.strip())
-                if row_data:
-                    krepsinio_data.append(row_data)
-            return krepsinio_data
-        except AttributeError as e:
-            print(f"Lenteles rasti nepavyko {e}")
+        soup = self.gauti_puslapi.gauti_is_url()
+        if soup:
+            krepsinio_data = []
+            try:
+                table = soup.find('table', class_='stats_01')
+                if table:
+                    for row in table.find_all('tr'):
+                        row_data = []
+                        for cell in row.find_all('td'):
+                            row_data.append(cell.text.strip())
+                        if row_data:
+                            krepsinio_data.append(row_data)
+                    return krepsinio_data
+                else:
+                    print("Lenteles nera.")
+                    return None
+            except AttributeError as e:
+                print(f"Lenteles rasti nepavyko {e}")
+                return None
+        else:
+            print("Nepavyko gauti duomenų iš puslapio.")
+            return None
 
     def sukurti_df(self, krepsinio_data):
         if krepsinio_data:
@@ -49,23 +66,31 @@ class KrepsinioKlubuRinkiklis:
         return self.eurolygos_duomenu_rinkimas_bendras()
 
 class KrepsinioZaidejuRinkiklis:
+    def __init__(self):
+        self.url = (
+            'https://www.basketnews.lt/lygos/25-eurolyga/statistika.html?fgroup=players&fseason=2023&fmonth=0&stage'
+            '=0&fpos=pts&sort=total&games_type=all#google_vignette')
+        self.gauti_puslapi = GautiPuslapi(self.url)
 
     def eurolygos_zaideju_statistika(self):
-        url = ('https://www.basketnews.lt/lygos/25-eurolyga/statistika.html?fgroup=players&fseason=2023&fmonth=0&stage'
-               '=0&fpos=pts&sort=total&games_type=all#google_vignette')
-        eurolyga_zaideju_data = []
-        puslapio_duomenys = GautiPuslapi.gauti_is_url(url)
-        try:
-            table = puslapio_duomenys.find('table', class_='list02')
-            for row in table.find_all('tr'):
-                row_data = []
-                for cell in row.find_all('td'):
-                    row_data.append(cell.text.strip())
-                if row_data:
-                    eurolyga_zaideju_data.append(row_data)
-            return eurolyga_zaideju_data
-        except AttributeError as e:
-            print(f"Lenteles rasti nepavyko {e}")
+        # url = ('https://www.basketnews.lt/lygos/25-eurolyga/statistika.html?fgroup=players&fseason=2023&fmonth=0&stage'
+        #        '=0&fpos=pts&sort=total&games_type=all#google_vignette')
+        puslapio_duomenys = self.gauti_puslapi.gauti_is_url()
+        if puslapio_duomenys:
+            eurolyga_zaideju_data = []
+            try:
+                table = puslapio_duomenys.find('table', class_='list02')
+                for row in table.find_all('tr'):
+                    row_data = []
+                    for cell in row.find_all('td'):
+                        row_data.append(cell.text.strip())
+                    if row_data:
+                        eurolyga_zaideju_data.append(row_data)
+                return eurolyga_zaideju_data
+            except AttributeError as e:
+                print(f"Lenteles rasti nepavyko {e}")
+        else:
+            print("Nepavyko gauti duomenų iš puslapio.")
 
     def sukurti_df(self, eurolyga_zaideju_data):
         if eurolyga_zaideju_data:
@@ -82,22 +107,27 @@ class KrepsinioZaidejuRinkiklis:
         return self.eurolygos_zaideju_statistika()
 
 class FutboloKlubuRinkiklis:
+    def __init__(self):
+        self.url = 'https://alyga.lt/turnyrine-lentele/1'
+        self.gauti_puslapi = GautiPuslapi(self.url)
 
     def futbolo_info(self):
-        url = 'https://alyga.lt/turnyrine-lentele/1'
-        puslapio_duomenys = GautiPuslapi.gauti_is_url(url)
-        a_lygos_info = []
-        try:
-            table = puslapio_duomenys.find('table', class_='table01')
-            for row in table.find_all('tr'):
-                row_data = []
-                for cell in row.find_all('td'):
-                    row_data.append(cell.text.strip())
-                if row_data:
-                    a_lygos_info.append(row_data)
-            return a_lygos_info
-        except AttributeError as e:
-            print(f"Lenteles rasti nepavyko {e}")
+        puslapio_duomenys = self.gauti_puslapi.gauti_is_url()
+        if puslapio_duomenys:
+            a_lygos_info = []
+            try:
+                table = puslapio_duomenys.find('table', class_='table01')
+                for row in table.find_all('tr'):
+                    row_data = []
+                    for cell in row.find_all('td'):
+                        row_data.append(cell.text.strip())
+                    if row_data:
+                        a_lygos_info.append(row_data)
+                return a_lygos_info
+            except AttributeError as e:
+                print(f"Lenteles rasti nepavyko {e}")
+        else:
+            print("Nepavyko gauti duomenų iš puslapio.")
 
     def sukurti_df(self, a_lygos_info):
         if a_lygos_info:
@@ -113,35 +143,41 @@ class FutboloKlubuRinkiklis:
     def info(self):
         return self.futbolo_info()
 
-class FutboloZaidejuRinkiklis:
-    def futbolo_zaideju_info(self):
-        url = 'https://alyga.lt/turnyrine-lentele/1'
-        puslapio_duomenys = GautiPuslapi.gauti_is_url(url)
-        try:
-            table = puslapio_duomenys.find('table', class_='table01')
-            linkai = table.find_all('a')
-            zaideju_info = []
-            for link in linkai:
-                komandos_pavadinimas = link.text.strip()
-                komandos_linkas = link['href']
-                response_komanda = requests.get(komandos_linkas)
-                if response_komanda.status_code == 200:
-                    soup_team = BeautifulSoup(response_komanda.text, 'html.parser')
-                    zaideju_lentele = soup_team.find('table', class_='table01 tablesorter')
-                    for row in zaideju_lentele.find_all('tr')[1:]:
-                        zaideju_data = [komandos_pavadinimas]
-                        for cell in row.find_all('td'):
-                            zaideju_data.append(cell.text.strip())
-                        if zaideju_data:
-                            zaideju_info.append(zaideju_data)
-                        else:
-                            print('Nera informacijos apie zaidejus')
-                else:
-                    print('Negalima pasiekti zaideju puslapio')
 
-            return zaideju_info
-        except AttributeError as e:
-            print(f"Lenteles rasti nepavyko {e}")
+class FutboloZaidejuRinkiklis:
+    def __init__(self):
+        self.url = 'https://alyga.lt/turnyrine-lentele/1'
+        self.gauti_puslapi = GautiPuslapi(self.url)
+
+    def futbolo_zaideju_info(self):
+        puslapio_duomenys = self.gauti_puslapi.gauti_is_url()
+        if puslapio_duomenys:
+            zaideju_info = []
+            try:
+                table = puslapio_duomenys.find('table', class_='table01')
+                linkai = table.find_all('a')
+                for link in linkai:
+                    komandos_pavadinimas = link.text.strip()
+                    komandos_linkas = link['href']
+                    response_komanda = requests.get(komandos_linkas)
+                    if response_komanda.status_code == 200:
+                        soup_team = BeautifulSoup(response_komanda.text, 'html.parser')
+                        zaideju_lentele = soup_team.find('table', class_='table01 tablesorter')
+                        for row in zaideju_lentele.find_all('tr')[1:]:
+                            zaideju_data = [komandos_pavadinimas]
+                            for cell in row.find_all('td'):
+                                zaideju_data.append(cell.text.strip())
+                            if zaideju_data:
+                                zaideju_info.append(zaideju_data)
+                            else:
+                                print('Nera informacijos apie zaidejus')
+                    else:
+                        print('Negalima pasiekti zaideju puslapio')
+                return zaideju_info
+            except AttributeError as e:
+                print(f"Lenteles rasti nepavyko {e}")
+        else:
+            print("Nepavyko gauti duomenų iš puslapio.")
 
     def sukurti_df(self, zaideju_info):
         if zaideju_info:
@@ -216,8 +252,7 @@ class SportoInformacijosSistema:
         self.futbolo_zaideju_rinkiklis = FutboloZaidejuRinkiklis()
 
     def gauti_info_apie_krepsinio_komanda(self):
-        krepsinio_rinkiklis = KrepsinioKlubuRinkiklis()
-        krepsinio_data = krepsinio_rinkiklis.eurolygos_duomenu_rinkimas_bendras()
+        krepsinio_data = self.krepsinio_rinkiklis.eurolygos_duomenu_rinkimas_bendras()
         if krepsinio_data:
             komandos_pavadinimas = input("Iveskite ieskomos komandos pavadinima: ")
             found = False
@@ -233,8 +268,7 @@ class SportoInformacijosSistema:
             print("Nera informacijos apie komandas.")
 
     def gauti_info_apie_krepsinio_zaideja(self):
-        krepsinio_zaideju_rinkiklis = KrepsinioZaidejuRinkiklis()
-        zaidejo_data = krepsinio_zaideju_rinkiklis.eurolygos_zaideju_statistika()
+        zaidejo_data = self.krepsinio_zaideju_rinkiklis.eurolygos_zaideju_statistika()
         if zaidejo_data:
             zaidejas = input("Iveskite ieskoma zaideja: ")
             zaidejas = zaidejas.replace(" ", "  ")
@@ -251,8 +285,7 @@ class SportoInformacijosSistema:
             print("Nera informacijos apie zaidejus.")
 
     def gauti_info_apie_futbolo_kluba(self):
-        futbolo_rinkiklis = FutboloKlubuRinkiklis()
-        a_lygos_info = futbolo_rinkiklis.futbolo_info()
+        a_lygos_info = self.futbolo_rinkiklis.futbolo_info()
         if a_lygos_info:
             komandos_pavadinimas = input("Iveskite ieskomos komandos pavadinima: ")
             found = False
@@ -313,3 +346,7 @@ class SportoInformacijosSistema:
 if __name__ == "__main__":
     sporto_sistema = SportoInformacijosSistema()
     sporto_sistema.main()
+
+# kaupiklis = KrepsinioKlubuRinkiklis()
+# rezultas = kaupiklis.eurolygos_duomenu_rinkimas_bendras()
+# print(rezultas)

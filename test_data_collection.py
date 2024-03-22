@@ -13,7 +13,6 @@ def fiktyvi_eurolygos_data():
 
 mock_html = """
 <html>
-<head><title>Sample Page</title></head>
 <body>
 <table class="stats_01">
   <tr><td>1</td><td>Real Madrid</td><td>25</td><td>20</td><td>5</td><td>10</td><td>2</td><td>85</td>
@@ -26,13 +25,11 @@ mock_html = """
 
 def test_krepsinio_klubu_rinkiklis(fiktyvi_eurolygos_data):
     test_url = 'https://www.basketnews.lt/lygos/25-eurolyga/lenteles.html'
-    expected_response = [
-        ['1', 'Real Madrid', '25', '20', '5', '10', '2', '85', '80', '5', '2', '4'],
-        ['2', 'Barcelona', '25', '19', '6', '11', '1', '80', '75', '5', '2', '3'],
-    ]
+    expected_response = fiktyvi_eurolygos_data
     with requests_mock.Mocker() as m:
         m.get(test_url, text=mock_html)
-        result = KrepsinioKlubuRinkiklis().eurolygos_duomenu_rinkimas_bendras()
+        krepsinio_klubu_rinkiklis = KrepsinioKlubuRinkiklis()
+        result = krepsinio_klubu_rinkiklis.eurolygos_duomenu_rinkimas_bendras()
         assert result == expected_response
 
 # 2
@@ -45,7 +42,6 @@ def fiktyvi_alyga_data():
 
 mock_html = """
 <html>
-<head><title>Sample Page</title></head>
 <body>
 <table class="table01">
   <tr><td>2</td><td>Vilniaus „Žalgiris“</td><td>4</td><td>2</td><td>2</td><td>0</td><td>2</td><td>0</td><td>+2</td><td>8</td></tr>
@@ -56,10 +52,7 @@ mock_html = """
 
 def test_futbolo_klubu_rinkiklis(fiktyvi_alyga_data):
     test_url = 'https://alyga.lt/turnyrine-lentele/1'
-    expected_response = [
-        ['2', 'Vilniaus „Žalgiris“', '4', '2', '2', '0', '2', '0', '+2', '8'],
-        ['6', 'Marijampolės „Sūduva“', '4', '1', '2', '1', '4', '4', '0', '5'],
-    ]
+    expected_response = fiktyvi_alyga_data
     with requests_mock.Mocker() as m:
         m.get(test_url, text=mock_html)
         result = FutboloKlubuRinkiklis().futbolo_info()
@@ -84,9 +77,14 @@ def test_gauti_puslapi():
 
     with requests_mock.Mocker() as m:
         m.get(test_url, text=mock_html)
-        soup = GautiPuslapi.gauti_is_url(test_url)
-        turinys = soup.find('h1').text.strip() if soup else None
-        assert turinys == laukiamas_puslapio_turinys
+        gauti_puslapi = GautiPuslapi(test_url)
+        soup = gauti_puslapi.gauti_is_url()
+        if soup:
+            turinys = soup.find('h1').text.strip()
+            assert turinys == laukiamas_puslapio_turinys
+        else:
+            assert False, "Failed to retrieve page content."
+
 
 # 4
 @pytest.fixture

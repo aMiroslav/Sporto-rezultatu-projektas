@@ -346,7 +346,3 @@ class SportoInformacijosSistema:
 if __name__ == "__main__":
     sporto_sistema = SportoInformacijosSistema()
     sporto_sistema.main()
-
-# kaupiklis = KrepsinioKlubuRinkiklis()
-# rezultas = kaupiklis.eurolygos_duomenu_rinkimas_bendras()
-# print(rezultas)
